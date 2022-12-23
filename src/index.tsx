@@ -4,6 +4,8 @@ import TRTC, { Client } from "trtc-js-sdk"
 import { EXPIRETIME, SDKAPPID, SECRETKEY } from "./const";
 import "./index.css"
 
+//@ts-ignore
+import * as RTCBeautyPlugin from "rtc-beauty-plugin"
 const App = () => {
 
 
@@ -59,10 +61,23 @@ const App = () => {
 
         await clientRef.current.join({ roomId: roomId });
         const localStream = TRTC.createStream({ userId: username, audio: true, video: true });
+
         await localStream.initialize()
         localStream.play('local-video-container');
 
-        await clientRef.current.publish(localStream);
+        const beautyPlugin = new RTCBeautyPlugin();
+        await beautyPlugin.loadResources();
+        // const beautyStream = beautyPlugin.generateBeautyStream(localStream);
+        // Publish the retouched stream
+
+        const virtualStream = await beautyPlugin.generateVirtualStream({
+            localStream: localStream,
+            type: 'blur'
+        });
+
+        await clientRef.current.publish(virtualStream);
+
+        // await clientRef.current.publish(localStream);
     }
 
     const leave = async () => {
