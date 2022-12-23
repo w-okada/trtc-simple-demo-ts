@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import TRTC, { Client } from "trtc-js-sdk"
+import TRTC, { Client, LocalStream } from "trtc-js-sdk"
 import { EXPIRETIME, SDKAPPID, SECRETKEY } from "./const";
 import "./index.css"
 
@@ -33,6 +33,10 @@ const App = () => {
     // }, [])
 
     const clientRef = useRef<Client>()
+    const localStreamRef = useRef<LocalStream | null>(null)
+    const effectedLocalStreamRef = useRef<LocalStream | any>(null)
+    //@ts-ignore
+    const beautyPlugin = useRef<RTCBeautyPluginClass | null>(null)
 
     const effectRef = useRef<Effect>("none")
     const [_effect, _setEffect] = useState<Effect>(effectRef.current)
@@ -76,18 +80,18 @@ const App = () => {
         });
 
         await clientRef.current.join({ roomId: roomId });
-        const localStream = TRTC.createStream({ userId: username, audio: true, video: true });
+        localStreamRef.current = TRTC.createStream({ userId: username, audio: true, video: true });
 
-        await localStream.initialize()
-        localStream.play('local-video-container');
+        await localStreamRef.current.initialize()
+        localStreamRef.current.play('local-video-container');
 
-        const beautyPlugin = new RTCBeautyPlugin();
-        await beautyPlugin.loadResources();
+        beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
+        await beautyPlugin.current.loadResources();
         // const beautyStream = beautyPlugin.generateBeautyStream(localStream);
         // Publish the retouched stream
 
-        const virtualStream = await beautyPlugin.generateVirtualStream({
-            localStream: localStream,
+        const virtualStream = await beautyPlugin.current.generateVirtualStream({
+            localStream: localStreamRef.current,
             type: 'blur'
         });
 
@@ -102,7 +106,12 @@ const App = () => {
             return
         }
         await clientRef.current.leave();
-        clientRef.current.destroy();
+        clientRef.current.destroy()
+        if (!localStreamRef.current) {
+            return
+        }
+        localStreamRef.current.stop()
+        localStreamRef.current = null
     }
 
     return (
