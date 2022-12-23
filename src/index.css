@@ -39,3 +39,30 @@
     display: flex;
     flex-direction: row;
 }
+.local-resources{
+    width:30%;
+
+}
+.remote-video-container{
+    width:60%;
+    display:flex;
+    flex-direction:row;
+}
+
+
+
+.local-video-element-container{
+    width:100%;
+}
+.local-video-element{
+    width:100%;
+}
+
+.local-video-container{
+    width:10%;
+}
+
+.hidden-resources{
+    position:absolute;
+    left:100%
+}
