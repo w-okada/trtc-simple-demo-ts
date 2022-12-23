@@ -5,24 +5,9 @@ const manager = {
     entry: "./src/index.tsx",
     resolve: {
         extensions: [".ts", ".tsx",".js"],
-        // fallback: {
-        //     os: false,
-        // },
     },
     module: {
         rules: [
-            // {
-            //     test: [/\.ts$/, /\.tsx$/],
-            //     use: [
-            //         {
-            //             loader: "ts-loader",
-            //             options: {
-            //                 // transpileOnly: true,
-            //                 configFile: "tsconfig.json",
-            //             },
-            //         },
-            //     ],
-            // },
             {
                 test: [/\.ts$/, /\.tsx$/],
                 use: [
