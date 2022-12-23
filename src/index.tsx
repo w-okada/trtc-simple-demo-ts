@@ -4,7 +4,6 @@ import TRTC, { Client } from "trtc-js-sdk"
 import { EXPIRETIME, SDKAPPID, SECRETKEY } from "./const";
 import "./index.css"
 
-//@ts-ignore
 import * as RTCBeautyPlugin from "rtc-beauty-plugin"
 const App = () => {
 
