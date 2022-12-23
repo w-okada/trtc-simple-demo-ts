@@ -33,30 +33,106 @@ const App = () => {
     // }, [])
 
     const clientRef = useRef<Client>()
+    const usernameRef = useRef<string>("")
     const localStreamRef = useRef<LocalStream | null>(null)
     const effectedLocalStreamRef = useRef<LocalStream | any>(null)
     //@ts-ignore
     const beautyPlugin = useRef<RTCBeautyPluginClass | null>(null)
 
     const effectRef = useRef<Effect>("none")
-    const [_effect, _setEffect] = useState<Effect>(effectRef.current)
+    const [effect, _setEffect] = useState<Effect>(effectRef.current)
     const setEffect = (val: Effect) => {
         effectRef.current = val
         _setEffect(effectRef.current)
     }
 
+
+    useEffect(() => {
+        publishLocalStream()
+    }, [effect])
+
+    const generateLocalStreamWithEffect = async (): Promise<LocalStream | null> => {
+        // return await beautyPlugin.current!.generateVirtualStream({
+        //     localStream: localStreamRef.current!,
+        //     type: 'blur'
+        // })
+
+        console.log("effect", effectRef.current)
+        if (effectRef.current === "none") {
+            return localStreamRef.current
+        } else {
+            //     // if (!beautyPlugin.current) {
+            //     //     //@ts-ignore
+            //     //     beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
+            //     // }
+            //     if (effectRef.current === "beauty") {
+            //         return beautyPlugin.current!.generateBeautyStream(localStreamRef.current)
+            //     }
+            //     // await beautyPlugin.current.loadResources()
+            //     if (effectRef.current === "blur") {
+            return await beautyPlugin.current!.generateVirtualStream({
+                localStream: localStreamRef.current!,
+                type: 'blur'
+            })
+
+            //     } else {
+            //         return await beautyPlugin.current!.generateVirtualStream({
+            //             localStream: localStreamRef.current!,
+            //             type: 'virtual',
+            //             img: document.getElementById('img'),
+            //         })
+            //     }
+        }
+    }
+
+
+    const publishLocalStream = async () => {
+        if (!clientRef.current) {
+            return
+        }
+        if (effectedLocalStreamRef.current) {
+            await clientRef.current.unpublish(effectedLocalStreamRef.current)
+        }
+        // if (beautyPlugin.current) {
+        //     beautyPlugin.current.destroy()
+        //     beautyPlugin.current = null
+        // }
+
+        if (localStreamRef.current) {
+            localStreamRef.current.stop()
+            localStreamRef.current.close()
+        }
+        localStreamRef.current = TRTC.createStream({ userId: usernameRef.current, audio: true, video: true });
+        localStreamRef.current.play('local-video-container');
+
+
+        if (!beautyPlugin.current) {
+            //@ts-ignore
+            beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
+            await beautyPlugin.current.loadResources()
+        }
+
+        await localStreamRef.current.initialize()
+        effectedLocalStreamRef.current = await generateLocalStreamWithEffect()
+
+
+        await clientRef.current.publish(effectedLocalStreamRef.current);
+
+    }
+
+
     const join = async () => {
         const usernameInput = document.getElementById("username") as HTMLInputElement
-        const username = usernameInput.value
+        usernameRef.current = usernameInput.value
         const roomIdInput = document.getElementById("room-id") as HTMLInputElement
         const roomId = Number(roomIdInput.value)
 
         const signer = new window.LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME)
-        const sign = signer.genTestUserSig(username)
+        const sign = signer.genTestUserSig(usernameRef.current)
 
         clientRef.current = TRTC.createClient({
             sdkAppId: SDKAPPID,
-            userId: username,
+            userId: usernameRef.current,
             userSig: sign,
             mode: 'rtc'
         });
@@ -80,24 +156,25 @@ const App = () => {
         });
 
         await clientRef.current.join({ roomId: roomId });
-        localStreamRef.current = TRTC.createStream({ userId: username, audio: true, video: true });
+        await publishLocalStream()
+        // localStreamRef.current = TRTC.createStream({ userId: usernameRef.current, audio: true, video: true });
 
-        await localStreamRef.current.initialize()
-        localStreamRef.current.play('local-video-container');
+        // await localStreamRef.current.initialize()
+        // localStreamRef.current.play('local-video-container');
 
-        beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
-        await beautyPlugin.current.loadResources();
-        // const beautyStream = beautyPlugin.generateBeautyStream(localStream);
-        // Publish the retouched stream
+        // beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
+        // await beautyPlugin.current.loadResources();
+        // // const beautyStream = beautyPlugin.generateBeautyStream(localStream);
+        // // Publish the retouched stream
 
-        const virtualStream = await beautyPlugin.current.generateVirtualStream({
-            localStream: localStreamRef.current,
-            type: 'blur'
-        });
+        // const virtualStream = await beautyPlugin.current.generateVirtualStream({
+        //     localStream: localStreamRef.current,
+        //     type: 'blur'
+        // });
 
-        await clientRef.current.publish(virtualStream);
+        // await clientRef.current.publish(virtualStream);
 
-        // await clientRef.current.publish(localStream);
+        // // await clientRef.current.publish(localStream);
     }
 
     const leave = async () => {
