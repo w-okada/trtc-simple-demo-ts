@@ -140,6 +140,7 @@ const App = () => {
                 </div>
 
                 <div className="header-item-container">
+                    <div className="header-label">media type</div>
                     <select onChange={(e) => { setMediaType(e.target.value as MediaType) }}>
                         {Object.values(MediaType).map(x => {
                             return (<option value={x} key={x}>{x}</option>)
