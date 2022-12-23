@@ -2,6 +2,10 @@ TRTC-Simple-Demo-TS
 ----
 Super simple real-time communication demo with TRTC(Tencent Real-Time Communication) with Typescript.
 
+# usage
+Edit src/const.ts, then run command below.
+
+
 ```
 $npm run start
 ```
