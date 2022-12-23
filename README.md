@@ -8,6 +8,9 @@ This repository contains...
 
 (2) watermark demo (watermark)
 
+(3) beauty filters demo (beauty-filters)
+
+
 # usage
 All sample needs you to edit src/const.ts.
 
@@ -23,7 +26,7 @@ $ npm run start
 
 and access the url shown in your terminal.
 
-(2)  super simple demo (watermark)
+(2)  watermark demo (watermark)
 ```
 $ git clone https://github.com/w-okada/trtc-simple-demo-ts.git  -b watermark
 $ cd trtc-simple-demo-ts
@@ -32,6 +35,15 @@ $ npm install
 $ npm run start
 ```
 
+
+(3) beauty filters demo (beauty-filters)
+```
+$ git clone https://github.com/w-okada/trtc-simple-demo-ts.git  -b beauty-filters
+$ cd trtc-simple-demo-ts
+$ npm install
+# edit src/const.ts
+$ npm run start
+```
 
 # demo
 
@@ -43,4 +55,10 @@ https://user-images.githubusercontent.com/48346627/209261843-7185d504-df8e-4fde-
 (2) water mark demo (watermark)
 
 https://user-images.githubusercontent.com/48346627/209360190-0b29b750-1243-4730-9918-7e7b0e1b19e1.mp4
+
+
+
+(3) beauty filters demo (beauty-filters)
+
+https://user-images.githubusercontent.com/48346627/209389256-518a3d3d-3784-4b2a-82cb-90dd20fedec9.mp4
 
