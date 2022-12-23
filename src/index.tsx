@@ -52,36 +52,27 @@ const App = () => {
     }, [effect])
 
     const generateLocalStreamWithEffect = async (): Promise<LocalStream | null> => {
-        // return await beautyPlugin.current!.generateVirtualStream({
-        //     localStream: localStreamRef.current!,
-        //     type: 'blur'
-        // })
-
-        console.log("effect", effectRef.current)
         if (effectRef.current === "none") {
             return localStreamRef.current
         } else {
-            //     // if (!beautyPlugin.current) {
-            //     //     //@ts-ignore
-            //     //     beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
-            //     // }
-            //     if (effectRef.current === "beauty") {
-            //         return beautyPlugin.current!.generateBeautyStream(localStreamRef.current)
-            //     }
-            //     // await beautyPlugin.current.loadResources()
-            //     if (effectRef.current === "blur") {
-            return await beautyPlugin.current!.generateVirtualStream({
-                localStream: localStreamRef.current!,
-                type: 'blur'
-            })
+            if (effectRef.current === "beauty") {
+                return beautyPlugin.current!.generateBeautyStream(localStreamRef.current)
+            }
+            if (effectRef.current === "blur") {
+                console.log("BLUR")
+                return await beautyPlugin.current!.generateVirtualStream({
+                    localStream: localStreamRef.current!,
+                    type: 'blur'
+                })
 
-            //     } else {
-            //         return await beautyPlugin.current!.generateVirtualStream({
-            //             localStream: localStreamRef.current!,
-            //             type: 'virtual',
-            //             img: document.getElementById('img'),
-            //         })
-            //     }
+            } else {
+                console.log("VGG", effectRef.current)
+                return await beautyPlugin.current!.generateVirtualStream({
+                    localStream: localStreamRef.current!,
+                    type: 'virtual',
+                    img: document.getElementById("virtual-background-image"),
+                })
+            }
         }
     }
 
@@ -93,10 +84,6 @@ const App = () => {
         if (effectedLocalStreamRef.current) {
             await clientRef.current.unpublish(effectedLocalStreamRef.current)
         }
-        // if (beautyPlugin.current) {
-        //     beautyPlugin.current.destroy()
-        //     beautyPlugin.current = null
-        // }
 
         if (localStreamRef.current) {
             localStreamRef.current.stop()
@@ -157,24 +144,6 @@ const App = () => {
 
         await clientRef.current.join({ roomId: roomId });
         await publishLocalStream()
-        // localStreamRef.current = TRTC.createStream({ userId: usernameRef.current, audio: true, video: true });
-
-        // await localStreamRef.current.initialize()
-        // localStreamRef.current.play('local-video-container');
-
-        // beautyPlugin.current = new RTCBeautyPlugin() as RTCBeautyPluginClass;
-        // await beautyPlugin.current.loadResources();
-        // // const beautyStream = beautyPlugin.generateBeautyStream(localStream);
-        // // Publish the retouched stream
-
-        // const virtualStream = await beautyPlugin.current.generateVirtualStream({
-        //     localStream: localStreamRef.current,
-        //     type: 'blur'
-        // });
-
-        // await clientRef.current.publish(virtualStream);
-
-        // // await clientRef.current.publish(localStream);
     }
 
     const leave = async () => {
@@ -189,6 +158,10 @@ const App = () => {
         }
         localStreamRef.current.stop()
         localStreamRef.current = null
+        if (beautyPlugin.current) {
+            beautyPlugin.current.destroy()
+            beautyPlugin.current = null
+        }
     }
 
     return (
@@ -213,9 +186,9 @@ const App = () => {
                     <div className="header-label">Effect</div>
                     <select onChange={(e) => { setEffect(e.target.value as Effect) }}>
                         {
-                            Object.keys(Effect).map((x) => {
+                            Object.values(Effect).map((x) => {
                                 return (
-                                    <option value={x} key={x}>{Effect[x as keyof typeof Effect]}</option>
+                                    <option value={x} key={x}>{x}</option>
                                 )
                             })
                         }
@@ -225,6 +198,9 @@ const App = () => {
             <div className="body">
                 <div id="remote-video-container"></div>
                 <div id="local-video-container"></div>
+            </div>
+            <div className="virtual-background-image">
+                <img src="./bg_natural_sougen.jpg" id="virtual-background-image"></img>
             </div>
         </div>
     )
