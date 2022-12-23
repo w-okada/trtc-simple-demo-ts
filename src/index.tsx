@@ -1,10 +1,20 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import TRTC, { Client } from "trtc-js-sdk"
 import { EXPIRETIME, SDKAPPID, SECRETKEY } from "./const";
 import "./index.css"
 
 import * as RTCBeautyPlugin from "rtc-beauty-plugin"
+
+
+const Effect = {
+    "none": "none",
+    "beauty": "beauty",
+    "vbg": "virtual background",
+    "bbg": "blur"
+} as const
+type Effect = typeof Effect[keyof typeof Effect]
+
 const App = () => {
 
 
@@ -23,6 +33,13 @@ const App = () => {
     // }, [])
 
     const clientRef = useRef<Client>()
+
+    const effectRef = useRef<Effect>("none")
+    const [_effect, _setEffect] = useState<Effect>(effectRef.current)
+    const setEffect = (val: Effect) => {
+        effectRef.current = val
+        _setEffect(effectRef.current)
+    }
 
     const join = async () => {
         const usernameInput = document.getElementById("username") as HTMLInputElement
@@ -104,6 +121,19 @@ const App = () => {
                 </div>
                 <div className="header-item-container">
                     <div className="header-button" onClick={leave}>leave</div>
+                </div>
+
+                <div className="header-item-container">
+                    <div className="header-label">Effect</div>
+                    <select onChange={(e) => { setEffect(e.target.value as Effect) }}>
+                        {
+                            Object.keys(Effect).map((x) => {
+                                return (
+                                    <option value={x} key={x}>{Effect[x as keyof typeof Effect]}</option>
+                                )
+                            })
+                        }
+                    </select>
                 </div>
             </div>
             <div className="body">
